@@ -81,5 +81,5 @@ if __name__ == '__main__':
 
     # Konstruerer SQL-setning 
     print( f"SQL-setning for å slette de ugyldige relasjonene:")
-    print(f"delete from feature_association2 where type_id in ('{','.join( [ str(x) for x in sletteTypeId ] )})")
+    print(f"start trasaction; delete from feature_association2 where type_id in ('{','.join( [ str(x) for x in sletteTypeId ] )})")
 
