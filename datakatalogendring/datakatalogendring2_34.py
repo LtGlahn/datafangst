@@ -33,7 +33,7 @@ if __name__ == '__main__':
     dagensRelasjoner = pd.DataFrame( resultater )
 
     # Liste fra Vilhelm med dem som er sletta, 443 rader
-    sletta_regneark = pd.read_excel( 'relasjoner som er sletta.xlsx', sheet_name='Ark2' )
+    sletta_regneark = pd.read_excel( 'vilhelm_2_34_relasjoner_som_er_sletta.xlsx', sheet_name='Ark2' )
     sletta_regneark.rename( columns={'VT_Id' : 'morObjTypeId', 'VT_Id.1' : 'datterObjektTypeId'}, inplace=True )
     sletta_regneark['mulig_typeid_1'] = sletta_regneark['TS_Id'] + 200000
     sletta_regneark['mulig_typeid_2'] = sletta_regneark['TS_Id'] + 220000
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     # Liste fra Datafangst databasen laget med backup fra torsdag for to uker siden
     # MariaDB [datafangst]> select distinct type_id from feature_association2; 
     # 574 rader 
-    datafangst_relasjonstyper = pd.read_csv( 'relasjonstyper_frabackup.csv' )
+    datafangst_relasjonstyper = pd.read_csv( 'relasjonstyper_frabackup_v2_34.csv' )
 
     # # Kobler mariadb-relasjonene med dagens relasjoner, finner differansen
     # joined = pd.merge( datafangst_relasjonstyper, dagensRelasjoner, on='type_id', how='inner'  )
@@ -69,9 +69,10 @@ if __name__ == '__main__':
     slettekandidat = pd.concat( [ slettekandidat1, slettekandidat2] )
 
 
-    # Skriver ut oversikt 
-
-
+    # Skriver ut oversikt over de objekttypene som skal slettes
+    col = ['morObjTypeId', 'VT_navn', 'datterObjektTypeId', 'VT_navn.1', 'TS_Id', 'dakat_versjon', 'A og B gyldig', 'SHT_Navn',  'type_id']
+    print( f"Relasjoner som skal slettes fra gamle Datafangst:")
+    print( slettekandidat[col])
 
     sletteTypeId =  slettekandidat['type_id'].to_list()  
     
