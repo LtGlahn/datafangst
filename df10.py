@@ -3,6 +3,7 @@ Leser data fra og sender data til applikasjonen datafangst https://datafangst.at
 
 Se dokumentasjon på datafangst API her https://apiskriv.vegdata.no/datafangst/datafangst-api
 """
+from datetime import datetime
 import json
 import requests
 from requests.auth import HTTPBasicAuth
@@ -113,16 +114,18 @@ def lagreFeatureCollections( contractId:str, mappenavn:str, api='https://datafan
     RETURNS 
         None 
     """
-
+    t0 = datetime.now()
     data = alleFeaturecollections( contractId, api=api, user=user, pw=pw, **kwargs )
     metadata = get_data( api+contractId, user=user, pw=pw )
     print( f"{len(data['featureCollections'] )} feature collections på kontrakt {metadata['name']} {metadata['id']}, lagres til mappe {mappenavn} ")
     if not os.path.exists( mappenavn): 
         os.makedirs( mappenavn)
 
-    for col in data['featureCollections']: 
+    
+    for count, col in enumerate( data['featureCollections']): 
         src = [ x for x in col['resources'] if 'src' in x ]
         url= src[0]['src']
+        print( f"\t-> Henter feature collection {count+1} av {len(data['featureCollections'])} tidsbruk så langt: {datetime.now()-t0}")
         myGeo = get_data( url, user=user, pw=pw, geojson=True )
         status = get_data( url + '/status', user=user, pw=pw )
 
@@ -134,7 +137,7 @@ def lagreFeatureCollections( contractId:str, mappenavn:str, api='https://datafan
             json.dump( myGeo, fp, indent=4, ensure_ascii=False  )
 
 
-
+    print( f"Tidsbruk totalt: {datetime.now()-t0}")
 
 
 if __name__ == '__main__': 
