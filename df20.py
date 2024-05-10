@@ -15,6 +15,8 @@ def login( username=None,  pw=None, brukertype='ANSATT', miljo='TEST' ):
         authapi = 'https://nvdbauth.test.atlas.vegvesen.no/api/v1/auth/autentiser'
     elif miljo.upper() in ['PROD', 'PRODUKSJON' ]: 
         authapi = 'https://nvdbauth.atlas.vegvesen.no/api/v1/auth/autentiser'
+    elif miljo.upper() in ['UTV', 'STM', 'UTVIKLING' ]: 
+        authapi = 'https://nvdbauth.utv.atlas.vegvesen.no/api/v1/auth/autentiser'
     else: 
         raise NotImplementedError(f"Har ikke implementert støtte for miljø {miljo} ennå")
 
@@ -40,7 +42,7 @@ def login( username=None,  pw=None, brukertype='ANSATT', miljo='TEST' ):
         return None 
 
     
-def hentKontrakter( header_med_token:dict, apiUrl ='https://datafangst-api-gateway.test.atlas.vegvesen.no/api/v2/'  ):
+def hentKontrakter( header_med_token:dict, apiUrl ='https://datafangst-api-gateway.test.atlas.vegvesen.no/api/v2/'  )
     """
     Henter liste med de kontraktene du har tilgang til 
     """
