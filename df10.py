@@ -26,8 +26,11 @@ def get_data( url:str, user='jajens', pw=None, geojson=False ):
     Gjør GET - forespørsel mot Datafangst og returnerer data 
     """
 
-    if not pw: 
-        hentPassord( user, url )
+    if not isinstance( user, str): 
+        user = input( "Datafangst eller NVDB brukernavn:")
+
+    if not isinstance( pw, str): 
+        pw = hentPassord( user, url )
 
     if geojson: 
         headers = headers = { 'Content-Type' : 'application/geo+json', 'Accept' : 'application/geo+json' }
@@ -40,6 +43,7 @@ def get_data( url:str, user='jajens', pw=None, geojson=False ):
         return data  
     else: 
         print( f"GET-kall feilet: HTTP {r.status_code} {r.text[0:500]}")
+        from IPython import embed; embed()
 
     return None 
 
@@ -48,6 +52,12 @@ def alleKontrakter(  url='https://datafangst.vegvesen.no/api/v1/contract/', user
     """
     Henter liste med kontrakter fra contracts-endepunktet
     """
+    if not isinstance( user, str): 
+        user = input( "Datafangst eller NVDB brukernavn:")
+
+    if not isinstance( pw, str): 
+        pw = hentPassord( user, url )
+
     contracts = get_data( url, user=user, pw=pw )
     return contracts
 
@@ -95,6 +105,12 @@ def alleFeaturecollections( contractId:str, destination='NVDB', api='https://dat
     henter liste med featureCollection fra kontrakt
     """
 
+    if not isinstance( user, str): 
+        user = input( "Datafangst eller NVDB brukernavn:")
+
+    if not isinstance( pw, str): 
+        pw = hentPassord( user, api )
+
     data = get_data( api + contractId + '/featurecollection', user=user, pw=pw )        
     return data 
 
@@ -115,12 +131,18 @@ def lagreFeatureCollections( contractId:str, mappenavn:str, api='https://datafan
         None 
     """
     t0 = datetime.now()
+
+    if not isinstance( user, str): 
+        user = input( "Datafangst eller NVDB brukernavn:")
+
+    if not isinstance( pw, str): 
+        pw = hentPassord( user, api )
+
     data = alleFeaturecollections( contractId, api=api, user=user, pw=pw, **kwargs )
     metadata = get_data( api+contractId, user=user, pw=pw )
     print( f"{len(data['featureCollections'] )} feature collections på kontrakt {metadata['name']} {metadata['id']}, lagres til mappe {mappenavn} ")
     if not os.path.exists( mappenavn): 
         os.makedirs( mappenavn)
-
     
     for count, col in enumerate( data['featureCollections']): 
         src = [ x for x in col['resources'] if 'src' in x ]
@@ -128,6 +150,8 @@ def lagreFeatureCollections( contractId:str, mappenavn:str, api='https://datafan
         print( f"\t-> Henter feature collection {count+1} av {len(data['featureCollections'])} tidsbruk så langt: {datetime.now()-t0}")
         myGeo = get_data( url, user=user, pw=pw, geojson=True )
         status = get_data( url + '/status', user=user, pw=pw )
+
+        print( f"{len(myGeo['features'])} vegobjekter for featureCollection \n{url}")
 
         # Legger på valideringsstatus
         for idx,feat in enumerate( myGeo['features']): 
