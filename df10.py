@@ -150,7 +150,7 @@ def sjekkStatus( DF10Respons, user='jajens', pw=None, utskrift=True ):
     print( f"Henter status for {len( statusElement)} for feature Collection {DF10Respons['featureCollectionId']}")
     myList = []
     for enStatus in statusElement: 
-        minStatus = get_data( enStatus['src'] )
+        minStatus = get_data( enStatus['src'], user=user, pw=pw )
         if utskrift: 
             print( minStatus )
         myList.append( minStatus)
