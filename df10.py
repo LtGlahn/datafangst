@@ -10,6 +10,8 @@ from requests.auth import HTTPBasicAuth
 import getpass 
 from copy import deepcopy 
 import os 
+from time import sleep
+import pdb
 
 def hentPassord( user:str, api:str): 
     servernavn = [ x for x in api.split( '/' ) if 'datafangst' in x ]
@@ -43,14 +45,22 @@ def get_data( url:str, user='jajens', pw=None, geojson=False ):
         return data  
     else: 
         print( f"GET-kall feilet: HTTP {r.status_code} {r.text[0:500]}, prøver på ny")
+        sleep( 15 )
         r = requests.get( url, headers=headers, auth=HTTPBasicAuth( user, pw) )
         if r.ok: 
             data = r.json( )
             return data  
         else: 
-            print( f"GET-kall feilet enda en gang: HTTP {r.status_code} {r.text[0:500]}, gir opp")
-        
-            from IPython import embed; embed()
+            print( f"GET-kall feilet: HTTP {r.status_code} {r.text[0:500]}, prøver på ny")            
+            sleep( 15 )
+            r = requests.get( url, headers=headers, auth=HTTPBasicAuth( user, pw) )
+            if r.ok: 
+                data = r.json( )
+                return data  
+            else: 
+                print( f"GET-kall feilet enda en gang: HTTP {r.status_code} {r.text[0:500]}, gir opp")    
+                pdb.set_trace( )
+                # from IPython import embed; embed()
 
     return None 
 
