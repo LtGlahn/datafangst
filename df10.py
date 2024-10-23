@@ -42,8 +42,15 @@ def get_data( url:str, user='jajens', pw=None, geojson=False ):
         data = r.json( )
         return data  
     else: 
-        print( f"GET-kall feilet: HTTP {r.status_code} {r.text[0:500]}")
-        from IPython import embed; embed()
+        print( f"GET-kall feilet: HTTP {r.status_code} {r.text[0:500]}, prøver på ny")
+        r = requests.get( url, headers=headers, auth=HTTPBasicAuth( user, pw) )
+        if r.ok: 
+            data = r.json( )
+            return data  
+        else: 
+            print( f"GET-kall feilet enda en gang: HTTP {r.status_code} {r.text[0:500]}, gir opp")
+        
+            from IPython import embed; embed()
 
     return None 
 
@@ -114,7 +121,34 @@ def alleFeaturecollections( contractId:str, destination='NVDB', api='https://dat
     return data 
 
 
-def sjekkStatus( DF10Respons, user='jajens', pw=None, utskrift=True ):  
+def sjekkFeatureCollectionStatus( kontrakt:str, featureCollectionId:str, utskrift=True, user='jajens', pw=None, api='https://datafangst.vegvesen.no/api/v1/contract/' ):
+    """
+    Sjekker status for kontrakt/featurecollection 
+
+    ARGUMENTS
+        kontrakt:str - ID til kontrakten
+
+        featureCollectionId:str - Id til featurecollection 
+
+    KEYWORDS: 
+        utskrift:bool - default True. Skriver ut detaljert statusinformasjon i konsoll
+
+        user:str - default jajens 
+
+        pw:str - default None, og da blir du interaktivt spurt om passord
+
+        api:str - default api='https://datafangst.vegvesen.no/api/v1/contract/'
+
+    RETURNS 
+        dictionary med detaljert statusinformasjon. 
+    """
+    minStatus = get_data( api + kontrakt + '/featurecollection/' + featureCollectionId + '/status', user=user, pw=pw )
+    if utskrift: 
+        print( json.dumps( minStatus, indent=4, ensure_ascii=False) )
+
+    return minStatus 
+
+def sjekkResponsStatus( DF10Respons, user='jajens', pw=None, utskrift=True ):  
     """
     Følger status-lenken som finnes i responsen fra df10.postFeatureCollection eller df10.putFeatureCollection 
 
