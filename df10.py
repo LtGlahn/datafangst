@@ -1,5 +1,5 @@
 """
-Leser data fra og sender data til applikasjonen datafangst https://datafangst.atlas.vegvesen.no/
+Leser data fra og sender data til applikasjonen Gamle datafangst https://datafangst.vegvesen.no/
 
 Se dokumentasjon på datafangst API her https://apiskriv.vegdata.no/datafangst/datafangst-api
 """
@@ -12,6 +12,7 @@ from copy import deepcopy
 import os 
 from time import sleep
 import pdb
+import nvdbapiv3 
 
 def hentPassord( user:str, api:str): 
     servernavn = [ x for x in api.split( '/' ) if 'datafangst' in x ]
@@ -207,6 +208,35 @@ def sjekkResponsStatus( DF10Respons, user='jajens', pw=None, utskrift=True ):
         print( f"Fant totalt {len(myList)} status-element, det var rart??? \n\n")
         return myList
 
+def sjekkstatusFeatureCollection( contractId:str, featurecollectionId:str, api='https://datafangst.vegvesen.no/api/v1/contract/',  user='jajens', pw=None ): 
+    """
+    Returnerer URL til statusinformasjon som du kan åpne i nettleser
+    
+    Returnerer status på featureCollection basert på at du kjenner ID  
+
+    Eksempel anrop 
+    https://datafangst.vegvesen.no/api/v1/contract/ddfff412-d2f8-48e9-9edb-5309045d8bbe/featurecollection/89a5628e-4175-4ed2-ae2f-19285aba1c60/status
+
+    ARGUMENTS: 
+        contractId - str, ID til kontrakten   
+
+        featureCollectionId - str, ID til feature collection   
+    
+    KEYWORDS: 
+        api - str, default='https://datafangst.vegvesen.no/api/v1/contract/' . Kan byttes ut med API-lenke til TESTPROD (atm) eller utviklingsmiljø
+         
+        user - str, brukernavn som har skriverettigheter på kontrakten. Mitt brukernavn "jajens" er satt som default, men det overstyrer du. 
+                    Sett user=None for å oppgi brukernavn interaktivt i python shell. 
+        
+        pw=None - str, passord med skriverettigheter på kontrakten. Hvis blankt blir du interaktivt spurt i python shell.  
+        
+    RETURNS 
+        dictionary med responsen fra API. Inni denne responsen finner du lenke for å sjekke status. Se funksjon df10.sjekkStatus 
+
+    """
+    url =  api + contractId + '/featurecollection/' + featurecollectionId + '/status' 
+    minStatus = get_data( url, user=user, pw=pw )
+    return minStatus
 
 def postFeatureCollection( contractId:str, data:dict, api='https://datafangst.vegvesen.no/api/v1/contract/', user='jajens', pw=None, **kwargs ): 
     """
@@ -360,6 +390,8 @@ def lagreFeatureCollections( contractId:str, mappenavn:str, api='https://datafan
 
 
     print( f"Tidsbruk totalt: {datetime.now()-t0}")
+
+
 
 # Eksempel på interaktiv bruk 
 if __name__ == '__main__': 
